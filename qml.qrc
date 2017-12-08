@@ -4,5 +4,7 @@
         <file>qtquickcontrols2.conf</file>
         <file>TodoDelegate.qml</file>
         <file>Database.js</file>
+        <file>TodoList.qml</file>
+        <file>DateUtil.js</file>
     </qresource>
 </RCC>
