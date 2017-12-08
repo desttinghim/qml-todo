@@ -5,6 +5,8 @@ Component {
     id: root
 
     Rectangle {
+        // TODO: add archive button
+        // TODO(?): add delete button
         width: parent.width
         height: 40
 

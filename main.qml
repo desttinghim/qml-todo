@@ -17,6 +17,7 @@ ApplicationWindow {
 
 
    Page {
+       // TODO: todo lists sorted by day
        anchors.fill: parent
 
        ListModel { id: todoList }

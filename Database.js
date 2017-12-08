@@ -1,4 +1,5 @@
 function dbInit() {
+    // TODO: add date and archived fields
     var db = LocalStorage.openDatabaseSync("TodoAppDB", "1.0", "Todo List", 100000)
     try {
         db.transaction(function (tx) {
