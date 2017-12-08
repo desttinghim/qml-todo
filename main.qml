@@ -38,10 +38,10 @@ ApplicationWindow {
             anchors.fill: parent
             TodoList {
                 id: today
-                date: new Date(Date())
+                date: new Date()
             }
             TodoList {
-                date: DateUtil.addDays(new Date(Date()), 1)
+                date: DateUtil.addDays(new Date(), 1)
             }
         }
     }
