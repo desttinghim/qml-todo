@@ -2,14 +2,15 @@ function dbInit() {
     // TODO: add date and archived fields
     var db = LocalStorage.openDatabaseSync("TodoAppDB", "", "Todo List", 100000)
     try {
-        db.transaction(function (tx) {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS todos (todo TEXT, done BOOL, date DATE)')
-        })
-        if (db.version === "1.0") {
-            db.changeVersion("1.0", "1.1", function(tx) {
-                tx.executeSql("ALTER TABLE todos ADD date DATE")
+        if (db.version == "1.1") {
+            db.changeVersion("1.1", "1.2", function(tx) {
+                tx.executeSql("DROP TABLE todos")
             })
         }
+        db.transaction(function (tx) {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS todos (todo TEXT, done BOOL, date INT)')
+            tx.executeSql('CREATE TABLE IF NOT EXISTS dates (id INTEGER PRIMARY KEY AUTOINCREMENT, date DATE)')
+        })
     } catch (err) {
         console.log("Error creating table in database: " + err)
     };
@@ -17,7 +18,7 @@ function dbInit() {
 
 function dbGetHandle() {
     try {
-        var db = LocalStorage.openDatabaseSync("TodoAppDB", "1.1", "Todo List", 100000);
+        var db = LocalStorage.openDatabaseSync("TodoAppDB", "1.2", "Todo List", 100000);
     } catch (err) {
         console.log("Error opening database: " + err)
     }
@@ -29,14 +30,16 @@ function readAllDate(date) {
     var todos = []
     try {
         db.transaction(function (tx) {
-            var results = tx.executeSql('SELECT rowid,todo,done FROM todos WHERE date=? ORDER BY rowid desc',
-                                        [date.toDateString()])
+            var results = tx.executeSql('SELECT todos.rowid, todos.todo, todos.done '
+                                        + 'FROM todos JOIN dates ON todos.date==dates.id '
+                                        + 'WHERE dates.date=? ORDER BY todos.rowid desc',
+                                        [date])
             for (var i = 0; i < results.rows.length; i++) {
                 var item = results.rows.item(i)
                 todos.push({
                                rowId: item.rowid,
                                done: item.done === 0 ? false : true,
-                                                       todoText: item.todo
+                               todoText: item.todo
                            })
             }
         })
@@ -51,7 +54,7 @@ function readAll() {
     var todos = []
     try {
         db.transaction(function (tx) {
-            var results = tx.executeSql('SELECT rowid,todo,done FROM todos ORDER BY rowid desc')
+            var results = tx.executeSql('SELECT rowid,todo,done FROM todos JOIN dates ON todos.date==dates.id ORDER BY rowid desc')
             for (var i = 0; i < results.rows.length; i++) {
                 var item = results.rows.item(i)
                 todos.push({
@@ -78,8 +81,13 @@ function newTodo(text, date) {
     var db = dbGetHandle();
     var rowId = 0;
     db.transaction(function (tx) {
+        var dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date])
+        if (dateResults.length == 0) {
+            tx.executeSql('INSERT INTO dates (date) VALUES (?)', [date])
+        }
+
         tx.executeSql('INSERT INTO todos VALUES(?, ?, ?)',
-                      [text, false, date]);
+                      [text, false, dateResults.id]);
         var result = tx.executeSql('SELECT last_insert_rowid()')
         rowId = result.insertId;
     });
