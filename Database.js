@@ -2,7 +2,12 @@ function dbInit() {
     // TODO: add date and archived fields
     var db = LocalStorage.openDatabaseSync("TodoAppDB", "", "Todo List", 100000)
     try {
-        if (db.version == "1.1") {
+        if (db.version === "1.0") {
+            db.changeVersion("1.0", "1.2", function(tx) {
+                tx.executeSql("DROP TABLE todos")
+            })
+        }
+        if (db.version === "1.1") {
             db.changeVersion("1.1", "1.2", function(tx) {
                 tx.executeSql("DROP TABLE todos")
             })
@@ -31,7 +36,7 @@ function readAllDate(date) {
     try {
         db.transaction(function (tx) {
             var results = tx.executeSql('SELECT todos.rowid, todos.todo, todos.done '
-                                        + 'FROM todos JOIN dates ON todos.date==dates.id '
+                                        + 'FROM todos JOIN dates ON todos.date=dates.id '
                                         + 'WHERE dates.date=? ORDER BY todos.rowid desc',
                                         [date])
             for (var i = 0; i < results.rows.length; i++) {
@@ -79,15 +84,17 @@ function setTodoState(done, rowId) {
 
 function newTodo(text, date) {
     var db = dbGetHandle();
-    var rowId = 0;
+    var rowId = "";
     db.transaction(function (tx) {
         var dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date])
-        if (dateResults.length == 0) {
+        if (dateResults.rows.length === 0) {
             tx.executeSql('INSERT INTO dates (date) VALUES (?)', [date])
+            dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date])
         }
 
         tx.executeSql('INSERT INTO todos VALUES(?, ?, ?)',
-                      [text, false, dateResults.id]);
+                      [text, false, dateResults.rows.item(0).id]);
+
         var result = tx.executeSql('SELECT last_insert_rowid()')
         rowId = result.insertId;
     });

@@ -12,7 +12,7 @@ Page {
     property ListModel todoList
 
     Component.onCompleted: {
-        var results = DB.readAllDate(date)
+        var results = DB.readAllDate(date.toDateString())
         for (var i in results) {
             todoList.append(results[i])
         }
