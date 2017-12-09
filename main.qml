@@ -51,7 +51,8 @@ ApplicationWindow {
 
             onClicked: {
                 // date is automatically passed in. date == date clicked on
-                stackView.push("TodoListViews.qml", {"currentDate": date})
+                console.log("Date in main is " + date.toString())
+                stackView.push("TodoList.qml", {"date": date})
             }
         }
     }

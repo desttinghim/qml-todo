@@ -6,17 +6,18 @@ import "Database.js" as DB
 
 Page {
     clip: true
+    id: listThingy
 
     property date date
     property ListModel todoList
 
     Component.onCompleted: {
+        console.log("Date in TodoList " + date.toString())
         var results = DB.readAllDate(date)
         for (var i in results) {
             todoList.append(results[i])
         }
-        console.log(date)
-        parent.title = "Todos in " + date.toDateString()
+        title = "Todos on " + date.toDateString()
     }
 
 
@@ -48,6 +49,7 @@ Page {
             id: newTodoBtn
             text: qsTr("New Todo")
             onClicked: {
+                console.log(date.toString())
                 var newItem = DB.newTodo(newTodoText.text, date.toString())
                 todoList.append(newItem)
                 newTodoText.text = ""
