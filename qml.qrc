@@ -6,5 +6,6 @@
         <file>Database.js</file>
         <file>TodoList.qml</file>
         <file>DateUtil.js</file>
+        <file>TodoListViews.qml</file>
     </qresource>
 </RCC>

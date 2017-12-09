@@ -54,6 +54,26 @@ function readAllDate(date) {
     return todos;
 }
 
+function getDates() {
+    var db = dbGetHandle()
+    var dates = []
+    try {
+        db.transaction(function (tx) {
+            var results = tx.executeSql('SELECT id,date FROM dates')
+            for (var i = 0; i < results.rows.length; i++) {
+                var item = results.rows.item(i)
+                dates.push({
+                               id: item.id,
+                               date: new Date(item.date)
+                           })
+            }
+        })
+    } catch (err) {
+        console.log("Error reading database: " + err)
+    };
+    return dates;
+}
+
 function readAll() {
     var db = dbGetHandle()
     var todos = []
