@@ -16,26 +16,31 @@ ApplicationWindow {
         DB.dbInit()
     }
 
-    Rectangle {
-        id: nav
-        width: parent.width
-        height: 50
-        anchors.top: parent.top
-        color: "steelblue"
-        Text {
-            // TODO: Come up with a better way to change the breadcrumbs thingamajig
-            //text: view.itemAt(view.currentIndex).date.toDateString()
-            font.pointSize: 24
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
+    header: ToolBar {
+        RowLayout {
+            anchors.fill: parent
+            ToolButton {
+                text: qsTr("‹")
+                onClicked: stackView.pop()
+            }
+            Label {
+                text: "Title"
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+            ToolButton {
+                text: qsTr("⋮")
+                // I don't know what this will do some I am commenting it out for now
+                //onClicked: menu.open()
+            }
         }
     }
+
     StackView {
         id: stackView
-        anchors.top: nav.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
 
         initialItem: MonthGrid {
             id: control
