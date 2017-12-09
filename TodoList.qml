@@ -5,17 +5,18 @@ import QtQuick.LocalStorage 2.0
 import "Database.js" as DB
 
 Page {
-    // TODO: todo lists sorted by day
     clip: true
 
     property date date
     property ListModel todoList
 
     Component.onCompleted: {
-        var results = DB.readAllDate(date.toDateString())
+        var results = DB.readAllDate(date)
         for (var i in results) {
             todoList.append(results[i])
         }
+        console.log(date)
+        parent.title = "Todos in " + date.toDateString()
     }
 
 
@@ -47,7 +48,7 @@ Page {
             id: newTodoBtn
             text: qsTr("New Todo")
             onClicked: {
-                var newItem = DB.newTodo(newTodoText.text, date.toDateString())
+                var newItem = DB.newTodo(newTodoText.text, date.toString())
                 todoList.append(newItem)
                 newTodoText.text = ""
             }

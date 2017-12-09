@@ -14,9 +14,15 @@ SwipeView {
         var dates = DB.getDates()
         var todoList = Qt.createComponent("TodoList.qml")
         var currentDateFound = false
+
         for (var i in dates) {
+            // Need properly formatted date strings
+            // This means using toString and not toDateString
+            if(dates[i] === "Invalid Date") continue;
+            var dateObj = new Date(dates[i].date)
+
             var newTodo = todoList.createObject(view, {"date": dates[i].date})
-            if (dates[i] == currentDate) {
+            if (dateObj.toString() == currentDate.toString()) {
                 currentIndex = newTodo.index
                 currentDateFound = true
             }

@@ -24,7 +24,7 @@ ApplicationWindow {
                 onClicked: stackView.pop()
             }
             Label {
-                text: "Title"
+                text: stackView.currentItem.title !== undefined ? stackView.currentItem.title : "Todos"
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -44,13 +44,14 @@ ApplicationWindow {
 
         initialItem: MonthGrid {
             id: control
+            title: "Todo Lists in " + DateUtil.getMonthName(new Date().getMonth())
             month: new Date().getMonth()
             year: new Date().getFullYear()
             locale: Qt.locale("en_US")
 
             onClicked: {
-                console.log(date) // date is automatically passed in. date == date clicked on
-                stackView.push("TodoListViews.qml", {})
+                // date is automatically passed in. date == date clicked on
+                stackView.push("TodoListViews.qml", {"currentDate": date})
             }
         }
     }

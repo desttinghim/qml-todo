@@ -38,7 +38,7 @@ function readAllDate(date) {
             var results = tx.executeSql('SELECT todos.rowid, todos.todo, todos.done '
                                         + 'FROM todos JOIN dates ON todos.date=dates.id '
                                         + 'WHERE dates.date=? ORDER BY todos.rowid desc',
-                                        [date])
+                                        [date.toString()])
             for (var i = 0; i < results.rows.length; i++) {
                 var item = results.rows.item(i)
                 todos.push({
@@ -64,7 +64,7 @@ function getDates() {
                 var item = results.rows.item(i)
                 dates.push({
                                id: item.id,
-                               date: new Date(item.date)
+                               date: item.date
                            })
             }
         })
@@ -102,18 +102,37 @@ function setTodoState(done, rowId) {
     })
 }
 
+function addDate(date) {
+    var db = dbGetHandle();
+    var dateId = -1;
+    db.transaction(function (tx) {
+        tx.executeSql('INSERT INTO dates (date) VALUES (?)', [date.toString()])
+        var dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date.toString()])
+        if (dateResults.rows.lenght !== 0)
+            dateId = dateResults.rows.item(0).id // this should always happen?
+    })
+    return dateId
+}
+
+function getOrAddDateId(date) {
+    var db = dbGetHandle();
+    var dateId = -1;
+    db.transaction(function (tx) {
+        var dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date.toString()])
+        if (dateResults.rows.length !== 0)
+            dateId = dateResults.rows.item(0).id
+    })
+    if (dateId != -1) return dateId;
+    return addDate(date)
+}
+
 function newTodo(text, date) {
     var db = dbGetHandle();
     var rowId = "";
+    var dateId = getOrAddDateId(date)
     db.transaction(function (tx) {
-        var dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date])
-        if (dateResults.rows.length === 0) {
-            tx.executeSql('INSERT INTO dates (date) VALUES (?)', [date])
-            dateResults = tx.executeSql('SELECT * FROM dates WHERE date=?', [date])
-        }
-
         tx.executeSql('INSERT INTO todos VALUES(?, ?, ?)',
-                      [text, false, dateResults.rows.item(0).id]);
+                      [text, false, dateId]);
 
         var result = tx.executeSql('SELECT last_insert_rowid()')
         rowId = result.insertId;
